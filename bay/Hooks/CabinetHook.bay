@@ -24,7 +24,8 @@ use Runtime.Hooks.BaseHook;
 use Runtime.Hooks.RuntimeHook;
 use Runtime.Auth.Hooks.AuthHook;
 use Runtime.Cabinet.Models.Menu;
-use Runtime.Web.Hooks.AppHook;
+use Runtime.Crypt.JWT;
+use Runtime.Web.Hooks.AppHook as WebHook;
 use Runtime.Web.RenderContainer;
 
 
@@ -41,7 +42,7 @@ class CabinetHook extends AuthHook
 		parent();
 		
 		#ifdef BACKEND then
-		this.register(RuntimeHook::CREATE_LAYOUT, "createMenu");
+		this.register(WebHook::ROUTE_BEFORE, "createMenu");
 		#endif
 	}
 	
@@ -56,6 +57,10 @@ class CabinetHook extends AuthHook
 		RenderContainer container = params.get("container");
 		BaseLayout layout = container.layout;
 		
+		/* Get JWT */
+		string token_name = this.settings.getTokenName();
+		JWT jwt = layout.storage.backend.get(token_name);
+		
 		/* Create cabinet menu */
 		Menu menu = new Menu();
 		layout.storage.set("cabinet_menu", menu);
@@ -65,11 +70,14 @@ class CabinetHook extends AuthHook
 		layout.storage.set("cabinet_profile", profile);
 		
 		/* Add logout */
-		profile.add(new Menu{
-			"title": "Logout",
-			"slug": "logout",
-			"url": this.settings.getUrlName() ~ ":logout",
-		});
+		if (jwt)
+		{
+			profile.add(new Menu{
+				"title": "Logout",
+				"slug": "logout",
+				"url": this.settings.getUrlName() ~ ":logout",
+			});
+		}
 		
 		/* Send hook */
 		@.hook(static::CREATE_MENU, { "menu": menu, "profile": profile });

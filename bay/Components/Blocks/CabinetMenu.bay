@@ -18,6 +18,9 @@
 
 <class name="Runtime.Cabinet.Components.Blocks.CabinetMenu">
 
+<use name="Runtime.Auth.Models.UserData" />
+<use name="Runtime.Cabinet.Hooks.CabinetHook" />
+<use name="Runtime.Cabinet.Models.CabinetSettings" />
 <use name="Runtime.Cabinet.Models.Menu" />
 <use name="Runtime.Widget.Section" component="true" />
 
@@ -123,9 +126,9 @@
 			%if (item.hasChildren())
 			{
 				<ul class="cabinet_menu__submenu">
-					%for (Menu item in item.getChildren())
+					%for (Menu subitem in item.getChildren())
 					{
-						%render this.renderItem(item);
+						%render this.renderItem(subitem);
 					}
 				</ul>
 			}
@@ -135,27 +138,40 @@
 </template>
 
 <template>
-	<Section class="cabinet_menu">
-		<ul class="cabinet_menu__list cabinet_menu__list--menu">
-			%for (Menu item in this.menu.getChildren())
-			{
-				%render this.renderItem(item);
-			}
-		</ul>
-		<ul class="cabinet_menu__list cabinet_menu__list--profile">
-			<li class="cabinet_menu__item">
-				<a class="cabinet_menu__link">
-					<span class="cabinet_menu__title">Profile</span>
-				</a>
-				<ul class="cabinet_menu__submenu">
-				%for (Menu item in this.profile.getChildren())
+	%if (this.isAuth)
+	{
+		<Section class="cabinet_menu">
+			<ul class="cabinet_menu__list cabinet_menu__list--menu">
+				%if (this.menu)
 				{
-					%render this.renderItem(item);
+					%for (Menu item in this.menu.getChildren())
+					{
+						%render this.renderItem(item);
+					}
 				}
-				</ul>
-			</li>
-		</ul>
-	</Section>
+			</ul>
+			<ul class="cabinet_menu__list cabinet_menu__list--profile">
+				<li class="cabinet_menu__item">
+					<a class="cabinet_menu__link">
+						<span class="cabinet_menu__title">Profile</span>
+					</a>
+					<ul class="cabinet_menu__submenu">
+					%if (this.profile)
+					{
+						%for (Menu item in this.profile.getChildren())
+						{
+							%render this.renderItem(item);
+						}
+					}
+					</ul>
+				</li>
+			</ul>
+		</Section>
+	}
+	%else
+	{
+		<div class="cabinet_menu"></div>
+	}
 </template>
 
 <script>
@@ -172,6 +188,21 @@ string getItemUrl(Menu item)
 	if (rs::charAt(item.url, 0) == "/") return item.url;
 	string url = this.layout.url(item.url, item.url_params);
 	return url ? url : item.url;
+}
+
+
+/**
+ * Returns is auth
+ */
+computed bool isAuth()
+{
+	CabinetHook cabinet_hook = @.provider("hook").find(classof CabinetHook);
+	if (!cabinet_hook) return false;
+	
+	UserData data = cabinet_hook.settings.getUserData(this.layout);
+	if (!data) return false;
+	
+	return true;
 }
 
 </script>
