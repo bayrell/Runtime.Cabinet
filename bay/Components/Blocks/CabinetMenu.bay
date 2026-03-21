@@ -1,0 +1,179 @@
+/*!
+ *  BayLang Technology
+ *
+ *  (c) Copyright 2016-2025 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+<class name="Runtime.Cabinet.Components.Blocks.CabinetMenu">
+
+<use name="Runtime.Cabinet.Models.Menu" />
+<use name="Runtime.Widget.Section" component="true" />
+
+<style>
+.cabinet_menu {
+	
+	background-color: var(--color-surface);
+	border-bottom: 1px solid var(--color-border);
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+	
+	.section__wrap{
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+	
+	&__list {
+		display: flex;
+		list-style: none;
+		margin: 0;
+		padding: var(--space);
+		justify-content: flex-start;
+		align-items: center;
+	}
+	
+	&__list--menu{
+		flex: 1
+	}
+	
+	&__item {
+		position: relative;
+	}
+	
+	ul, li{
+		padding: 0;
+		margin: 0;
+	}
+	ul{
+		list-style: none;
+	}
+	
+	&__link {
+		display: flex;
+		align-items: center;
+		padding: var(--space-half) var(--space);
+		text-decoration: none;
+		color: var(--color-link);
+		font-size: var(--font-size);
+		transition: background-color 0.2s;
+		cursor: pointer;
+		padding: var(--space);
+		
+		&:hover {
+			background-color: var(--color-default-hover);
+		}
+		
+		&--active {
+			background-color: var(--color-primary);
+			color: var(--color-primary-text);
+		}
+	}
+	
+	&__icon {
+		margin-right: var(--space-half);
+		font-size: 1.2em;
+	}
+	
+	&__submenu {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		background-color: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--border-radius);
+		box-shadow: var(--shadow-medium);
+		z-index: 100;
+		display: none;
+		
+		.cabinet_menu__item:hover & {
+			display: block;
+		}
+	}
+	
+	&__submenu &__link {
+		padding: var(--space-half) var(--space);
+	}
+}
+</style>
+
+<template name="renderItem" args="Menu item">
+	%if (item.isVisible())
+	{
+		<li class="cabinet_menu__item">
+			<a class="cabinet_menu__link" href={{ this.getItemUrl(item) }}>
+				%if (item.icon)
+				{
+					<span class="cabinet_menu__icon">{{ item.icon }}</span>
+				}
+				<span class="cabinet_menu__title">{{ item.title }}</span>
+			</a>
+			
+			%if (item.hasChildren())
+			{
+				<ul class="cabinet_menu__submenu">
+					%for (Menu item in item.getChildren())
+					{
+						%render this.renderItem(item);
+					}
+				</ul>
+			}
+			
+		</li>
+	}
+</template>
+
+<template>
+	<Section class="cabinet_menu">
+		<ul class="cabinet_menu__list cabinet_menu__list--menu">
+			%for (Menu item in this.menu.getChildren())
+			{
+				%render this.renderItem(item);
+			}
+		</ul>
+		<ul class="cabinet_menu__list cabinet_menu__list--profile">
+			<li class="cabinet_menu__item">
+				<a class="cabinet_menu__link">
+					<span class="cabinet_menu__title">Profile</span>
+				</a>
+				<ul class="cabinet_menu__submenu">
+				%for (Menu item in this.profile.getChildren())
+				{
+					%render this.renderItem(item);
+				}
+				</ul>
+			</li>
+		</ul>
+	</Section>
+</template>
+
+<script>
+
+/* Menu */
+props Menu menu = null;
+props Menu profile = null;
+
+/**
+ * Get item URL
+ */
+string getItemUrl(Menu item)
+{
+	if (rs::charAt(item.url, 0) == "/") return item.url;
+	string url = this.layout.url(item.url, item.url_params);
+	return url ? url : item.url;
+}
+
+</script>
+
+</class>

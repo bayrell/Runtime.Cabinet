@@ -19,6 +19,7 @@
 namespace Runtime.Cabinet;
 
 use Runtime.Entity.Entity;
+use Runtime.Cabinet.Hooks.CabinetHook;
 use Runtime.Cabinet.Models.CabinetSettings;
 
 
