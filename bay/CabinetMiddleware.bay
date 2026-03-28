@@ -20,15 +20,13 @@ namespace Runtime.Cabinet;
 
 use Runtime.Auth.AuthMiddleware;
 use Runtime.Cabinet.Models.CabinetSettings;
+use Runtime.Cabinet.Providers.CabinetProvider;
 
 
 class CabinetMiddleware extends AuthMiddleware
 {
 	/**
-	 * Create object
+	 * Returns provider name
 	 */
-	void constructor()
-	{
-		parent(new CabinetSettings());
-	}
+	string getProviderName() => classof CabinetProvider;
 }

@@ -20,7 +20,6 @@ namespace Runtime.Cabinet.Models;
 
 use Runtime.Auth.Models.UserSettings;
 use Runtime.Cabinet.Database.User;
-use Runtime.Cabinet.Hooks.CabinetHook;
 
 
 class CabinetSettings extends UserSettings
@@ -41,12 +40,6 @@ class CabinetSettings extends UserSettings
 	 * Returns url name
 	 */
 	string getUrlName() => "cabinet";
-	
-	
-	/**
-	 * Returns hook name
-	 */
-	static string getHookName() => classof CabinetHook;
 	
 	
 	#ifdef BACKEND then

@@ -19,9 +19,9 @@
 <class name="Runtime.Cabinet.Components.Blocks.CabinetMenu">
 
 <use name="Runtime.Auth.Models.UserData" />
-<use name="Runtime.Cabinet.Hooks.CabinetHook" />
 <use name="Runtime.Cabinet.Models.CabinetSettings" />
 <use name="Runtime.Cabinet.Models.Menu" />
+<use name="Runtime.Cabinet.Providers.CabinetProvider" />
 <use name="Runtime.Widget.Section" component="true" />
 
 <style>
@@ -196,10 +196,12 @@ string getItemUrl(Menu item)
  */
 computed bool isAuth()
 {
-	CabinetHook cabinet_hook = @.provider("hook").find(classof CabinetHook);
-	if (!cabinet_hook) return false;
+	CabinetProvider provider = @.provider(
+		classof CabinetProvider
+	);
+	if (!provider) return false;
 	
-	UserData data = cabinet_hook.settings.getUserData(this.layout);
+	UserData data = provider.settings.getUserData(this.layout);
 	if (!data) return false;
 	
 	return true;

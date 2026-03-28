@@ -16,22 +16,29 @@
  *  limitations under the License.
  */
 
-namespace Runtime.Cabinet.Hooks;
+namespace Runtime.Cabinet.Providers;
 
 use Runtime.BaseLayout;
 use Runtime.Entity.Hook;
 use Runtime.Hooks.BaseHook;
 use Runtime.Hooks.RuntimeHook;
-use Runtime.Auth.Hooks.AuthHook;
+use Runtime.Auth.Providers.AuthProvider;
+use Runtime.Cabinet.Models.CabinetSettings;
 use Runtime.Cabinet.Models.Menu;
 use Runtime.Crypt.JWT;
 use Runtime.Web.Hooks.AppHook as WebHook;
 use Runtime.Web.RenderContainer;
 
 
-class CabinetHook extends AuthHook
+class CabinetProvider extends AuthProvider
 {
 	const string CREATE_MENU = "runtime.cabinet::create_menu";
+	
+	
+	/**
+	 * Returns settings name
+	 */
+	static string getSettingsName() => classof CabinetSettings;
 	
 	
 	/**

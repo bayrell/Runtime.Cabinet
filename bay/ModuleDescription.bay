@@ -19,8 +19,7 @@
 namespace Runtime.Cabinet;
 
 use Runtime.Entity.Entity;
-use Runtime.Cabinet.Hooks.CabinetHook;
-use Runtime.Cabinet.Models.CabinetSettings;
+use Runtime.Cabinet.Providers.CabinetProvider;
 
 
 /**
@@ -59,6 +58,6 @@ class ModuleDescription
 	 */
 	pure Vector<Entity> entities() =>
 	[
-		CabinetSettings::hook(),
+		CabinetProvider::hook(),
 	];
 }

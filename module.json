@@ -3,9 +3,9 @@
 	"assets":
 	[
 		"Components/Blocks/CabinetMenu.bay",
-		"Hooks/CabinetHook.bay",
 		"Models/CabinetSettings.bay",
 		"Models/Menu.bay",
+		"Providers/CabinetProvider.bay",
 		"ModuleDescription.bay"
 	],
 	"groups": [
