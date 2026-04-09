@@ -92,16 +92,23 @@
 	&__submenu {
 		position: absolute;
 		top: 100%;
-		left: 0;
 		background-color: var(--color-surface);
 		border: 1px solid var(--color-border);
 		border-radius: var(--border-radius);
 		box-shadow: var(--shadow-medium);
+		width: max-content;
+		max-width: 250px;
 		z-index: 100;
 		display: none;
 		
 		.cabinet_menu__item:hover & {
 			display: block;
+		}
+		.cabinet_menu__list--menu & {
+			left: 0;
+		}
+		.cabinet_menu__list--profile & {
+			right: 0;
 		}
 	}
 	
@@ -142,9 +149,9 @@
 	{
 		<Section class="cabinet_menu">
 			<ul class="cabinet_menu__list cabinet_menu__list--menu">
-				%if (this.menu)
+				%if (this.cabinet_menu)
 				{
-					%for (Menu item in this.menu.getChildren())
+					%for (Menu item in this.cabinet_menu.getChildren())
 					{
 						%render this.renderItem(item);
 					}
@@ -156,9 +163,9 @@
 						<span class="cabinet_menu__title">Profile</span>
 					</a>
 					<ul class="cabinet_menu__submenu">
-					%if (this.profile)
+					%if (this.user_profile)
 					{
-						%for (Menu item in this.profile.getChildren())
+						%for (Menu item in this.user_profile.getChildren())
 						{
 							%render this.renderItem(item);
 						}
@@ -170,7 +177,7 @@
 	}
 	%else
 	{
-		<div class="cabinet_menu"></div>
+		<div class="cabinet_menu_no_login"></div>
 	}
 </template>
 
@@ -179,6 +186,27 @@
 /* Menu */
 props Menu menu = null;
 props Menu profile = null;
+
+
+/**
+ * Returns cabinet menu
+ */
+computed Menu cabinet_menu()
+{
+	if (this.menu) return this.menu;
+	return this.layout.get("cabinet_menu");
+}
+
+
+/**
+ * Returns user profile menu
+ */
+computed Menu user_profile()
+{
+	if (this.profile) return this.profile;
+	return this.layout.get("cabinet_profile");
+}
+
 
 /**
  * Get item URL
