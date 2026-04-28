@@ -49,7 +49,7 @@ class CabinetProvider extends AuthProvider
 		parent();
 		
 		#ifdef BACKEND then
-		this.register(WebHook::ROUTE_BEFORE, "createMenu");
+		this.register(WebHook::ROUTE_BEFORE, "createMenu", 0);
 		#endif
 	}
 	
