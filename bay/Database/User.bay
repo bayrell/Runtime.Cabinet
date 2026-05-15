@@ -63,7 +63,7 @@ class User extends BaseUser
 	 */
 	Map getTokenData() =>
 	{
-		"id": this.id,
-		"login": this.login,
+		"id": this.get("id"),
+		"login": this.get("login"),
 	};
 }
