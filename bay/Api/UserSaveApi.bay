@@ -1,0 +1,173 @@
+/*!
+ *  BayLang Technology
+ *
+ *  (c) Copyright 2016-2025 "Ildar Bikmamatov" <support@bayrell.org>
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+namespace Runtime.Cabinet.Api;
+
+use Runtime.Exceptions.ApiError;
+use Runtime.Exceptions.RuntimeException;
+use Runtime.Serializer.IntegerType;
+use Runtime.Serializer.MapType;
+use Runtime.Serializer.Required;
+use Runtime.Serializer.StringType;
+use Runtime.Web.Annotations.ApiMethod;
+use Runtime.Widget.Api.SaveApi;
+use Runtime.Widget.Api.Rules.UniqueRule;
+use Runtime.Cabinet.Database.User;
+use Runtime.Cabinet.CabinetMiddleware;
+use Runtime.Crypt.Password;
+
+
+class UserSaveApi extends SaveApi
+{
+	/**
+	 * Returns api name
+	 */
+	pure string getApiName() => "runtime.cabinet.user";
+	
+	
+	/**
+	 * Returns record name
+	 */
+	pure string getRecordName() => classof User;
+	
+	
+	/**
+	 * Add middleware
+	 */
+	Vector getMiddleware() =>
+	[
+		new CabinetMiddleware(),
+	];
+	
+	
+	/**
+	 * Returns save rules
+	 */
+	Vector<BaseRule> rules() =>
+	[
+		new UniqueRule{"field_name": "login"},
+		new UniqueRule{"field_name": "email"},
+	];
+	
+	
+	/**
+	 * Returns item rules
+	 */
+	void getItemRules(MapType rules)
+	{
+		rules.addType("id", new IntegerType());
+		rules.addType("login", new Required());
+		rules.addType("login", new StringType());
+		rules.addType("email", new Required());
+		rules.addType("email", new StringType());
+		rules.addType("name", new StringType());
+		rules.addType("password", new StringType());
+		rules.addType("password_repeat", new StringType());
+	}
+	
+	
+	/**
+	 * Returns item fields
+	 */
+	Vector<string> getItemFields(string action) =>
+	[
+		"id",
+		"login",
+		"email",
+		"name",
+		"gmtime_add",
+		"gmtime_edit",
+	];
+	
+	
+	/**
+	 * Returns save fields
+	 */
+	Vector<string> getSaveFields() =>
+	[
+		"login",
+		"email",
+		"password",
+		"password_repeat",
+		"name",
+	];
+	
+	
+	/**
+	 * Save before
+	 */
+	async void onSaveBefore()
+	{
+		await parent();
+		
+		/* Хеширование пароля при создании или изменении */
+		string password = this.update_data.get("password");
+		string password_repeat = this.update_data.get("password_repeat");
+		if (password)
+		{
+			if (password_repeat != password)
+			{
+				throw new ApiError(new RuntimeException("Password mistmatch"));
+			}
+			await this.item.setPassword(password);
+		}
+	}
+	
+	
+	/**
+	 * Delete before (Soft Delete)
+	 */
+	async void onDeleteBefore()
+	{
+		await parent();
+		
+		/* Вместо физического удаления помечаем как удаленное */
+		this.item.set("is_deleted", 1);
+	}
+	
+	
+	/**
+	 * Save action
+	 */
+	@ApiMethod{ "name": "save" }
+	async void actionSave()
+	{
+		await parent();
+	}
+	
+	
+	/**
+	 * Delete action
+	 */
+	@ApiMethod{ "name": "delete" }
+	async void actionDelete()
+	{
+		this.setAction("delete");
+		this.filterData();
+		
+		await this.find();
+		
+		/* Вызываем onDeleteBefore для soft delete */
+		await this.onDeleteBefore();
+		
+		/* Сохраняем изменения (так как is_deleted изменился) */
+		await this.item.save();
+		
+		this.success();
+	}
+}

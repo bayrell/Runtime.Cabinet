@@ -19,15 +19,7 @@
 const use = require("bay-lang").use;
 const rtl = use("Runtime.rtl");
 
-exports.MODULE_NAME = "Runtme.Cabinet";
+exports.MODULE_NAME = "Runtime.Cabinet";
 const add = rtl.add(__dirname, exports);
 
-add("Runtime.Cabinet.Components.Blocks.CabinetMenu");
-add("Runtime.Cabinet.Database.Migrations.CabinetMigration");
-add("Runtime.Cabinet.Database.User");
-add("Runtime.Cabinet.Database.ModuleDescription");
-add("Runtime.Cabinet.Models.CabinetSettings");
-add("Runtime.Cabinet.Models.Menu");
-add("Runtime.Cabinet.Providers.CabinetProvider");
-add("Runtime.Cabinet.CabinetMiddleware");
 add("Runtime.Cabinet.ModuleDescription");
